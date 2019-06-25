@@ -1,0 +1,267 @@
+---
+title: "HW#5"
+author: "Srikar Murali (#11593114)"
+date: "October 12, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part 1
+
+a. The samples must be independent and randomly chosen from a normal distribution. This is can be used in any experiment where the checking the variability between samples is important.
+
+Example 1: When making soft contact lenses, a monomer is injected into a plastic frame and subjected to ultraviolet light and heat. However, it is believed that changing the temperature might change the power of the lens. So the F-test can be used to test if the variability in power of the lenses created from different temperatures is significantly different.
+
+Example 2: There are three different motor designs that are marketed to increase miles per gallon for automobiles. Three independent random samples of 30 cars are taken. The three samples are assigned a motor design. They then do a 250 mile drive test over the same road. The F-test can be used here to test whether there was a difference between the three motors with respect to their variability.
+
+b. The conditions for an F-test for means is that each of the populations must have a normal distribution. The variances of all of the populations should be equal and every sample should be an independent random sample from their respective population. This is useful for determining if there is a difference between means from various tests, especially in cases where there is a control case.
+
+Example 1: Eating food with soy has been shown to be beneficial to ones health. However, the amount of soy in products could vary depending on the product. Lets say that there are three main groups of soy products, cereals, energy bars, and veggie burgers. A random sample of five is taken from each of the three groups. The F-test can be used here to see if the average amount of isoflavenes (a compound which gives soy its nutritional properties) is the same among the three groups. The F-test will determine if the mean amount is either the same or different amongst the three groups.
+
+Example 2: An educational psychologist wants to compare three different teaching methods for the SAT to determine if their is a difference in the average score. A random sample of 30 students is drawn from a high school population and for each teaching method 10 students are assigned. The students are similar in education and background, and are taught in similar settings such that the teaching method is the only difference. After the teaching is done, the students take a practice SAT test. The F-test can be used here to determine if there is a difference among the mean scores for each of the three teaching methods.  
+
+
+## Part 2
+
+a. 
+
+Test Statistic: $F = s^2_1/s^2_2$
+
+$df_1 = n_1 - 1$
+
+$df_2 = n_2 - 1$
+
+$H_0: \sigma^2_1 = \sigma^2_2$
+
+$H_A: \sigma^2_1 \neq \sigma^2_2$
+
+Reject $H_0$ if $F \leq F_{1-\alpha, df_1, df_2}$ or $F \geq F_{\alpha/2, df_1, df_2}$
+
+
+$H_0: \sigma^2_1 \leq \sigma^2_2$
+
+$H_A: \sigma^2_1 > \sigma^2_2$
+
+Reject $H_0$ if $F \geq F_{\alpha, df_1, df_2}$
+
+
+b.
+
+$H_0: \sigma_{1} = \sigma_{2}$
+
+$H_A: \sigma_{1} \neq \sigma_{2}$
+
+$F = s^2_{max}/s^2_{min}$
+
+$F = 4/1.5 = 2.667$
+
+$F_{0.025, 11, 14} = 3.0946$
+
+F is not greater than critical value for F at $\alpha = 0.05$ and $df_1 = 11, df_2 = 14$.
+
+Thus we fail to reject the null hypothesis.
+
+```{r Part 2}
+
+Fts <- 4/1.5
+Fts
+Fcrit = qf(0.025, df1 = 11, df2 = 14, lower.tail = FALSE)
+Fcrit
+
+```
+
+c. If the two populations deviate from normality, then the Brown-Forsythe-Levene test (BFL test) can be used instead. The BFL test involves replacing the jth observation from sample i, $y_{ij}$, with the random variable 
+$z_{ij} = |y_{ij} - \tilde{y}|$, where $\tilde{y}$ is the sample median from the ith sample. We then compute the BFL test statistic using this formula.
+
+$H_0: \sigma^2_1 = \sigma^2_2 = ... \sigma^2_t$ - The homogenity of variances
+
+$H_A:$ Population variances are not all equal.
+
+$L = (\sum\limits_{i=1}^t n_i(\bar{z_{i.}} - \bar{z_{..}})^2/(t-1))/(\sum\limits_{i=1}^t\sum\limits_{j=1}^{n_i} (z_{ij} - \bar{z_{i.}})^2/(N-t))$
+
+Rejection Region: For a specified value of $\alpha$, reject $H_0$ if $L \geq F_{\alpha, df_1, df_2}$, where $df_1 = t - 1, df_2 = N - t, N = \sum\limits_{i=1}^t n_i$ and $F_{\alpha, df_1, df_2}$ is the upper $\alpha$ percentile from the F distribution.
+
+## Part 3
+
+a. 
+
+The grand mean is the mean of all of the samples put together. It can be found using this formula.
+
+Forumula for mean of each sample:
+
+$\bar{y_i} = \sum\limits_{j} y_{ij}/n_i$
+
+Formula for grand mean:
+
+$\bar{y_{..}} = \sum\limits_{i} \sum\limits_{j} y_{ij}/n_T$
+
+Where $n_T$ is the combined total sample size, and $y_{ij}$ is the jth measurement from the ith sample.
+
+The total sum of squares is the variablity among all of the $n_T$ observations. It can be found by measuring the variability of the $n_T$ sample measurements, $y_{ij}$ about the grand mean $\bar{y_{..}}$. 
+
+The formulas are listed below.
+
+$TSS = \sum\limits_{i=1}^t \sum\limits_{j=1}^{n_{i}} (y_{ij} - \bar{y_{..}})^2 = (n_T - 1)s^2_T$
+
+The between sum of squares between samples measures the variablity between sample means. It measures the variability between each samples mean $\bar{y_i}$ about the grand mean $\bar{y_{..}}$.
+
+$SSB = \sum\limits_{i} n_i(\bar{y_i} - \bar{y_{..}})^2$ 
+
+The within sample sum of squares measures the within-sample variability. This measures the variability of an observation $y_{ij}$ about its sample mean $\bar{y_i}$.
+
+$SSW = \sum\limits_{i} (y_{ij} - \bar{y_i})^2$
+
+The total sum of squares is equivalent to the summation of SSB and SSW.
+
+$TSS = SSB + SSW$
+
+The mean square between samples can be found with this formula:
+
+$s^2_b = SSB/(t-1)$
+
+The mean square within samples can be found with this formula:
+
+$s^2_w = SSW/(n_T-1)$
+
+The F test statistic can then be found:
+
+$F = s^2_b/s^2_w$
+
+$df_1 = t - 1$
+
+$df_2 = n_T - 1$
+
+
+$H_0: \mu_1 = \mu_2 = ... \mu_t$
+
+$H_A:$ The means are not equal
+
+The null hypothesis of equality of the $t$ population means is rejected if the tests statistic for $F$ exceeds the tablulated value of $F$ for specified value of $\alpha, df_1 = t - 1, df_2 = n_T - 1$.
+
+
+Reject $H_0$ if 
+
+$F \geq F_{\alpha, df_1, df_2}$
+
+
+b.
+
+$s^2_w = SSW/(n_T - 1) = 60/(50-4) = 60/46 = 1.304$
+
+$s^2_b = SSB/(t-1) = 20/(4-1) = 20/3 = 6.667$
+
+$F = s^2_b/s^2_w = 6.667/1.304 = 5.111$
+
+$F_{0.05, 3, 46} = 2.806$
+
+Since $F > F_{0.05, 3, 46}$ we reject the null hypothesis and state that there is a difference in means.
+
+```{r Part 3}
+sW = 60/46
+sB = 20/3
+
+Fval = sB/sW
+Fval
+
+Fcrit2 <- qf(0.05, df1 = 3, df2 = 46, lower.tail = FALSE)
+Fcrit2
+
+```
+
+
+c. If the assumptions for an F-test are violated then the Kruskal-Wallis test can be used to test if the samples were all drawn from identical distributions. In order to do this test the data from all of the samples must be ranked in order.
+
+$H_0:$ The k distributions are identical.
+
+$H_A$: Not all of the distributions are the same.
+
+Test Statistic: $H = (12/(n_T(n_T + 1)))\sum\limits_{i} T^2_i/n_i - 3(n_T + 1)$
+
+Where $n_i$ is the number of observations from sample $i (i = 1, 2,..., k)$, $n_T$ is the combined sample size; $n_T = \sum\limits_{i} n_i$ and $T_i$ denotes the sum of the ranks for the measurements in sample $i$ after the combined sample measurements have been ranked.
+
+Rejection Region: For a specified value of $\alpha$, reject $H_0$ if $H$ exceeds the critical value of $\chi^2$ for $\alpha$ and df = k - 1.
+
+If there are large number of ties in the ranks of the sample measurements use:
+
+$H\prime = H/(1-[\sum\limits_{j}(t^3_j - t_j)/(n^3_T - n_T)])$
+
+where $t_j$ is the number of observations in the jth group of tied ranks.
+
+
+## Part 4
+
+I learned that the analysis of variance test using the F-statistic can be very useful when dealing with random independent samples from a normal population, but is rather unreliable when dealing with samples which have very different variances. Also I learned that it is easier to determine if the samples have different means if the sum of squares between samples is high. In addition, I saw that when using the aov test in R, the factor should always come second in the equation after the numeric observations. In addition, I learned that the Kruskal test is useful for samples which deviate from normality. The Kruskal and aov test might be similar in some cases even when the distributions are non-normal, though the Kruskal-Wallis test is far more reliable in these cases.
+
+```{r libraries, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+```{r Part 4}
+
+options(digits = 2)
+set.seed(1)
+n = 50
+obs1 = c(rnorm(n, 1, 3), rnorm(n, 1, 3), rnorm(n, 1, 3))
+grps1 = rep(c("Sample 1", "Sample 2", "Sample 3"))
+data1 = data.frame(obs1, grps1)
+group_by(data1, grps1) %>%
+  summarise(count = n(), mean = mean(obs1, na.rm = TRUE), sd = sd(obs1, na.rm=TRUE))
+ggplot(data1, aes(x = grps1, y = obs1)) + geom_boxplot() + theme_bw() + 
+  xlab("")
+reges1 = aov(obs1 ~ grps1, data=data1)
+summary(reges1)
+par(mfrow=c(2,2))
+plot(reges1)
+
+set.seed(12)
+obs2 = c(rnorm(n, 112, 1), rnorm(n, 4, 1), rnorm(n, 15, 1))
+grps2 = rep(c("Sample 1", "Sample 2", "Sample 3"))
+data2 = data.frame(obs2, grps2)
+group_by(data2, grps2) %>%
+  summarise(count = n(), mean = mean(obs2, na.rm = TRUE), sd = sd(obs2, na.rm=TRUE))
+ggplot(data2, aes(x = grps2, y = obs2)) + geom_boxplot() + theme_bw() + 
+  xlab("")
+reges2 <- aov(obs2 ~ grps2, data = data2)
+summary(reges2)
+par(mfrow=c(2,2))
+plot(reges2)
+
+set.seed(123)
+obs3 = c(rnorm(n, 12, 144), rnorm(n, 6, 36), rnorm(n, 15, 225))
+grps3 = rep(c("Sample 1", "Sample 2", "Sample 3"))
+data3 = data.frame(obs3, grps3)
+group_by(data3, grps3) %>%
+  summarise(count = n(), mean = mean(obs3, na.rm = TRUE), sd = sd(obs3, na.rm=TRUE))
+ggplot(data3, aes(x = grps3, y = obs3)) + geom_boxplot() + theme_bw() + 
+  xlab("")
+reges3 <- aov(obs3 ~ grps3, data = data3)
+summary(reges3)
+par(mfrow=c(2,2))
+plot(reges3)
+
+kruskal.test(obs3 ~ grps3, data = data3)
+
+set.seed(123)
+obs4 = c(rnorm(n, 10, 50), rnorm(n, 10, 50), rnorm(n, 10, 90))
+grps4 = rep(c("Sample 1", "Sample 2", "Sample 3"))
+data4 = data.frame(obs4, grps4)
+group_by(data4, grps4) %>%
+  summarise(count = n(), mean = mean(obs4, na.rm = TRUE), sd = sd(obs4, na.rm=TRUE))
+ggplot(data4, aes(x = grps4, y = obs4)) + geom_boxplot() + theme_bw() + 
+  xlab("")
+reges4 <- aov(obs4 ~ grps4, data = data4)
+summary(reges4)
+par(mfrow=c(2,2))
+plot(reges2)
+
+kruskal.test(obs4 ~ grps4, data = data4)
+
+
+
+```
+
+

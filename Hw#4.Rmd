@@ -1,0 +1,227 @@
+---
+title: "HW#3"
+author: "Srikar Murali (#11593114)"
+date: "September 21, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###Part 1
+
+Read in the data, get the sample mean and standard deviation. Plot the qqplot and qqline and then do the KS and Shapiro-Wilks tests.
+```{r Part 1}
+data <- read.csv('http://math.wsu.edu/faculty/xchen/stat412/docs/Data1_HW3.txt')
+data1 <- data[,1]
+s <- sd(data1)
+xbar <- mean(data1)
+qqnorm(data1,
+       plot.it = TRUE, 
+       xlab='Values',
+       ylab='Amount')
+qqline(data1, col = 2, lwd=2)
+ks.test(data1, "pnorm", mean(data1), sd(data1))
+shapiro.test(data1)
+```
+The qqplot line and both the KS test and Shapiro-Wilk test seem to indicate that the sample is most likely normally distributed, since most of the data points lie close to the line and the p values for both of the formal tests are rather large with the KS test having a p value of 0.9116, thus the data is most likely normal.
+
+
+###Part 2
+
+$H_0: \mu \leq 0$
+
+$H_a: \mu \gt 0$
+
+$\alpha = 0.05$
+
+Import library BSDA to check results of z test. Get observed z value, and the critical value for z at $\alpha = 0.05$ The calculate the error and find the corresponding p value. This is the probability of a type 2 error. Substract 1 - p value to get the power. Check using pnorm function.
+
+```{r BSDA, message=FALSE}
+library(BSDA)
+```
+
+```{r Part 2}
+zObs1 <- (xbar - 0.5)/(s/sqrt(length(data1))) 
+zCrit1 <- qnorm(0.95)
+
+#Value of z observed is less than the critical value so we fail to reject the null.
+e1 <- zCrit1 - abs(0 - 0.5)/(s/sqrt(length(data1)))
+beta1 <- pnorm(e1)
+pwr1 <- 1 - beta1
+pwr1
+
+#check with test
+z.test(data1, alternative = 'greater', sigma.x = s, mu=0.5, conf.level = 0.95)
+
+beta1check <- pnorm(zCrit1, mean = (0.5 - 0)/(s/sqrt(length(data1))), sd = 1, lower.tail = TRUE)
+pwr1check <- 1 - beta1check
+pwr1check
+
+
+```
+
+
+$H_0: \mu = 0$
+
+$H_a: \mu \neq 0$
+
+$\alpha = 0.05$
+
+Similar test except this time it is two sided. Again check with pnorm function.
+```{r Part 2.2}
+zCrit2 <- qnorm(0.975)
+zCrit2
+
+#Value of z observed is still less than critical value so we fail to reject the null.
+e2 <- zCrit2 - abs(0 - 0.5)/(s/sqrt(length(data1)))
+beta2 <- pnorm(e2)
+pwr2 <- 1 - beta2
+pwr2
+
+#check with test
+z.test(data1, alternative = 'two.sided', sigma.x = s, mu = 0.5, conf.level = 0.95)
+
+beta2Check <- pnorm(zCrit2, mean = (0.5 - 0)/(s/sqrt(length(data1))), sd = 1, lower.tail = TRUE) - pnorm(-zCrit2, mean = (0.5 - 0)/(s/sqrt(length(data1))), sd = 1, lower.tail = TRUE)
+pwr2Check <- 1 - beta2Check
+pwr2Check
+
+```
+The power computed manually is 0.4676 and is 0.4677 when using the pnorm function. However the overall difference is rather small.
+
+###Part 3
+
+###a.
+
+Get degrees of freedom and critical t value. Then get the lower and upper bound of the interval and check with the test.
+```{r Part 3a}
+df <- length(data1)-1
+tCrit1 <- qt(0.975, df)
+leftT1 <- xbar - tCrit1*s/sqrt(length(data1))
+rightT1 <- xbar + tCrit1*s/sqrt(length(data1))
+
+t.test(data1, alternative = 'two.sided', mu = xbar, conf.level = 0.95)
+
+
+```
+The confidence interval is (0.058, 1.128).
+
+
+
+###b.
+
+$H_0: \mu \leq 0$
+
+$H_a: \mu \gt 0$
+
+$\alpha = 0.05$
+
+Calculate critical value of t and observed value of t. Calculate the probability as well for the observed t value. Do the t test to check.
+
+```{r Part 3b}
+tCrit2 <- qt(0.95, df)
+tObs2 <- (xbar - 0)/(s/sqrt(length(data1)))
+pval2 <- pt(tObs2, df = df, ncp = 0, lower.tail = FALSE)
+t.test(data1, alternative = 'greater', mu = 0, conf.level = 0.95)
+
+```
+T observed is greater than the critical value of t so we reject the null hypothesis. In addition the p val is also less than 0.05 so we reject the null.
+
+
+###c.
+
+Calculate the non-centrality parameter. Find the p value using the critical value of t at $\alpha = 0.05$ for a one sided test. This is the probability of a type 2 error. Do 1 - p to find the power of the test. 
+```{r Part 3c}
+ncpval <- (0.5 - 0)/(s/sqrt(length(data1)))
+beta3 <- pt(tCrit2, df = df, ncp = ncpval, lower.tail = TRUE)
+pwr3 <- 1 - beta3
+pwr3
+
+```
+The power of this test is 0.5821. 
+
+
+###d.
+
+Get the critical value for t at $\alpha = 0.05$ for a two sided test. Calculate the observed t value given that $\mu = 0.5$. Get the left and right t values, and calculate the probability of each. Subtract the right from the left to get the actual p value. This is the probability of a type 2 error. Do 1 - p to get the power of the test. Finally use the pt function to check.
+```{r part 3d}
+tCrit3 <- qt(0.975, df)
+tObs3 <- (xbar - 0.5)/(s/sqrt(length(data1)))
+#The observed t value is less than the critical value for t at 0.975 so we fail to reject the null.
+
+leftE <- -tCrit3 - abs(0.5 - 0)/(s/sqrt(length(data1)))
+rightE <- tCrit3 - abs(0.5 - 0)/(s/sqrt(length(data1)))
+beta4 <- pt(rightE, df = df, lower.tail = TRUE) - pt(leftE, df = df, lower.tail = TRUE)
+pwr4 <- 1- beta4
+pwr4
+a <- pt(tCrit3, df = df, ncp = ncpval, lower.tail = TRUE)
+b <- pt(-tCrit3, df = df, ncp = ncpval, lower.tail = TRUE)
+beta4check <- a-b
+beta4check
+pwr4Check <- 1 - beta4check
+pwr4Check
+```
+The power is 0.4480 when done manually and 0.4528 when done using the pt function, however the overall difference is rather small.
+
+
+
+###Part 4
+
+###a.
+The observations do not seem to follow a normal distribution as the qqline is off for many data points and the KS test has a very low value. Thus it is most likely not normal.
+
+###b.
+For this test I would most likely use a bootstrap, though the t-test might work. The population distribution and standard deviation are unknown and the data is rather small at a sample size of 30. In addition the sample data is not normal. Thus the only test which would really work is the bootstrap. However since the sample size is 30, a t test might work though it has a low chance of being accurate.
+
+###c.
+
+$H_0: \mu = 0$
+
+$H_a: \mu \neq 0$
+
+$\alpha = 0.05$
+
+Read in the dataset and find the sample mean and standard deviation. Then find the original t value using this sample. Use the built in packages to do a two sided z and t test. Then do the bootstrap by taking 10000 samples with replacement from the original sample. For each sample get the t value. Then move all of the t values which are less than or equal that the orginal t value into one list, and all of the t values which are greater than or equal into another list. Calculate the p values for both lists as $p_L$ and $p_U$ by dividing the length of each list by the total number of bootstraps $B$. Then take this minimum of $2*p_L$ and $2*p_U$ to get the actual p value of the test.
+```{r Part 4}
+dataset2 <- read.csv("http://math.wsu.edu/faculty/xchen/stat412/docs/Data2_HW3.txt")
+data2 <- dataset2[,1]
+xbar2 <- mean(data2)
+s2 <- sd(data2)
+tOrg <- qt(0.975, df = length(data2)-1)
+tOrg
+
+#z test
+z.test(data1, alternative = 'two.sided', mu = 1, sigma.x = s2, conf.level = 0.95)
+#t test
+t.test(data1, alternative = 'two.sided', mu = 1, conf.level = 0.95)
+
+#bootstrap
+set.seed(123)
+B <- 10000
+t.vect <- vector(length = B)
+for(i in 1:B) {
+  boot.d <- sample(data2, size = 30, replace = TRUE)
+  ttest <- t.test(boot.d, mu = 1, alternative = 'two.sided', conf.level = 0.95)
+  t.vect[i] <- ttest$statistic
+}
+less <- vector(length = B)
+more <- vector(length = B)
+for(i in 1:B) {
+  if(t.vect[i] <= tOrg) {
+    less[i] <- t.vect[i]
+  }
+  if(t.vect[i] >= tOrg) {
+    more[i] <- t.vect[i]
+  }
+}
+
+countLess <- length(which(less != 0.00))
+countMore <- length(which(more != 0.00))
+pL <- countLess/B
+pU <- countMore/B
+pBootstrap <- min(2*pL, 2*pU)
+pBootstrap
+```
+The p values for the t and z tests are rather similar with both of them being 0.593. However the bootstrap p value is 0.9304. This shows how inaccurate the z and t tests can be when the data does not fit their respective specifications.
+

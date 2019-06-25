@@ -1,0 +1,159 @@
+---
+title: "HW#2"
+author: "Srikar Murali (#11593114)"
+date: "September 14, 2017"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Loads ggplot2 and reads the data in.
+```{r Setup}
+library(ggplot2)
+dataset <- read.csv('http://math.wsu.edu/faculty/xchen/stat412/docs/Data1_HW2.txt')
+dataset1 <- dataset[,1]
+
+```
+
+###Part 1
+
+Plots a qqqplot and a qqline in order to determine normalcy visually. It then plots a historgram, draws a normal line on it and then tries to draw the density curve for the histogram. At the end both a KS and Shapiro-Wilk's test are run in order to check normalcy.
+```{r Part 1}
+qqnorm(dataset1,
+       plot.it = TRUE, 
+       xlab='Values',
+       ylab='Amount')
+qqline(dataset1, col = 2, lwd=2)
+
+ggplot(dataset, aes(dataset$X9.44)) + 
+  geom_histogram(bins= 40,
+                 col='red',
+                 fill='blue',
+                 alpha=0.5) +
+  labs(title='Count vs Value') +
+  labs(x='Values', y='Count') +
+  geom_density(aes(y=..density..*38)) +
+  scale_fill_gradient("Count", low="#DCDCDC", high="#7C7C7C") +
+  stat_function(fun=dnorm,
+                color="red",
+                args=list(mean=mean(dataset$X9.44), 
+                          sd=sd(dataset$X9.44)))
+ks.test(dataset1, "pnorm",mean(dataset1),sd(dataset1))
+shapiro.test(dataset1)
+
+```
+The data seems to follow a normal distribution as indicated by the histogram line and the qqplot. 
+Also though the KS test is not too useful for datasets with duplicate values, it seems to indicate that the distribution is somewhat normally distributed.
+However the normal curve does not fully fit the histogram, which means that it is either barely normal, or might not be normal. Though the Shapiro-Wilk test indicates that it is most likely normal.
+
+
+###Part 2 - Standard Deviation Known
+Since the sample size >> 30, I would say that the sample means 
+can be used to estimate the population mean. Thus, I would say that the population mean is 9.994.
+Given that the data set size >> 30, I would use the sample standard deviation to estimate the population standard deviation.
+
+This code finds the standard deviation and mean, and then finds the error using the qnorm function to get the z critical value. It then computes the confidence interval.
+```{r Part 2 Standard Deviation Known}
+s <- sd(dataset1)
+s
+xbar <- mean(dataset1)
+xbar
+
+#standard deviation known
+error <- qnorm(0.975)*s/sqrt(length(dataset1))
+error
+leftZ <- xbar - error
+rightZ <- xbar + error
+leftZ
+rightZ
+
+```
+The confidence interval with $\sigma$ known is (9.863, 10.123).
+
+###Part 2 - Standard Deviation Unknown
+This code uses the t function to calculate the t critical value and then finds the error to obtain the confidence interval.
+```{r Part 2 Standard Deviation Unknown}
+#standard deviation unknown
+t <- qt(0.975, 198)
+t
+errorT <- t*s/sqrt(length(dataset1))
+leftT <- xbar - errorT
+rightT <- xbar + errorT
+leftT
+rightT
+```
+The confidence interval using s as a replacement for $\sigma$ since $\sigma$ is unknown (9.862, 10.126).
+
+###Part 3
+$E = (z_{\alpha/2})^2\sigma^2/\sqrt{n}$
+
+$n = (z_{\alpha/2})^2\sigma^2/E^2$
+
+$n = z_{0.975}^2s^2/E^2$
+
+$n = 1.96^2*0.944737^2/0.5^2$
+
+$n = 13.715$
+
+$n \approx 14$
+
+This code finds the sample size.
+```{r Part 3 Code}
+n <- qnorm(0.975)^2 * sd(dataset1)^2/(0.5^2)
+n
+```
+You will need a sample size of 14 to have an error of 0.5 from the mean.
+
+
+###Part 4
+$H_0: \mu \leq 3$
+
+$H_a: \mu > 3$
+
+The BSDA package containes the z.test function which is used below.
+This code runs both a one sided z test and a one sided t test to determine if the mean is > 3. Both tests use a confidence level of 0.95 to determine whether to reject or accept $H_0$.
+The first test is the z test which is used when the population standard deviation is known. The second is the t test which is used when the population standard deviation is unknown. 
+```{r Part 4 - First Test}
+library(BSDA)
+
+#standard deviation known
+z.test(dataset1, alternative = 'greater', mu = 3, conf.level = 0.95, sigma.x = sd(dataset1))
+
+#standard deviation unknown
+t.test(dataset1, mu=3, alternative = "greater", conf.level = 0.95)
+```
+Both tests give a p value of 2.2e-16 which is <<< 0.05, thus we reject the null hypothesis. This shows that the two tests are rather similar when there is a large sample size and the population distribution does not have too much skew.
+
+
+###Part 5
+
+$H_0: \mu = 2$
+
+$H_a: \mu \neq  2$
+
+This code runs both a two sided z test and a two sided t test both with a confidence level of 0.95 to determine whether to reject or accept $H_0$.
+The first test is the z test which is used when the population standard deviation is known. The second is the t test which is used when the population standard deviation is unknown. 
+```{r part 5 }
+#standard deviation known
+z.test(dataset1, alternative = 'two.sided', mu = 2, conf.level = 0.95, sigma.x = sd(dataset1))
+
+#standard deviation unknown
+t.test(dataset1, mu=2, alternative = 'two.sided', conf.level = 0.95)
+
+```
+Both tests give a p value of 2.2e-16 which is <<< 0.5, thus we reject the null hypothesis. This shows that the two tests are again rather similar when the sample size is large and the population distribution does not have too much skew.
+
+
+
+A hypothesis test at its core is testing if the sample mean is significantly different from the population mean. The only way to determine this is by calculating how many standard deviations difference there is between the sample mean and population mean.
+
+Thus you calculate the test statistic, whether it be the Z value or T value. The calculations are similar with the measure of standard deviation being the only difference.
+
+In the case of the z value it is $(\bar{x}-\mu_0)/(\sigma/\sqrt{n})$  where $\sigma$ is the population standard deviation.
+
+For the t value it is $(\bar{x}-\mu_0)/(s/\sqrt{n})$ where s is the sample standard deviation.
+Assuming the numerator stays the same, having a smaller denominator increases the value of the test statistic. So if s is smaller than sigma, it is easier to reject the null because you will have a large test statistic and thus a larger difference.

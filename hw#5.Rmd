@@ -1,0 +1,264 @@
+---
+title: "HW#4"
+author: "Srikar Murali(#11593114)"
+date: "October 05, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Part 1
+
+### a. 
+For a two sample t-test the conditions are that we assume both samples are independent from each other and that they both come from a normal distribution. In addition the samples must have equal standard deviations and variances.
+
+### b.
+For a paired t-test the conditions are that the sampling distribution of the differences is a normal distribution and that the individual differences are independent; that is the pairs of observations are independent. The data should also be paired which means that original sample will be dependent."
+
+#### c.
+One Sample t-test
+
+$t = (\bar{x} - \mu)/(s/\sqrt{n})$
+
+$H_0:$
+
+$\mu \leq \mu_0$ 
+
+$\mu \geq \mu_0$
+
+$\mu = \mu_0$
+
+$H_a:$
+
+$\mu > \mu_0$
+
+$\mu < \mu_0$
+
+$\mu \neq \mu_0$
+
+Given Level $\alpha$ and $df = n-1$
+
+rejection regions:
+
+case1: reject $H_0$ if $t \geq t_\alpha$
+
+case2: reject $H_0$ if $t \leq -t_\alpha$
+
+case3: reject $H_0$ if $|t| \geq t_\alpha$
+
+
+Level of Significance:
+
+case1: p-value = $P(t \geq computed  t)$
+
+case2: p-value = $P(t \leq computed  t)$
+
+case3: p-value = $2P(t \geq |computed  t|)$
+
+
+Paired t-test
+
+$t = (\bar{d} - D_0)/(s_d/\sqrt{n})$
+
+$H_0:$
+
+$\mu \leq \mu_0$ 
+
+$\mu \geq \mu_0$
+
+$\mu = \mu_0$
+
+$H_a:$
+
+$\mu > \mu_0$
+
+$\mu < \mu_0$
+
+$\mu \neq \mu_0$
+
+Given Level $\alpha$ and $df = n-1$
+
+rejection regions:
+
+case1: reject $H_0$ if $t \geq t_\alpha$
+
+case2: reject $H_0$ if $t \leq -t_\alpha$
+
+case3: reject $H_0$ if $|t| \geq t_\alpha$
+
+
+Level of Significance:
+
+case1: p-value = $P(t \geq computed t)$
+
+case2: p-value = $P(t \leq computed t)$
+
+case3: p-value = $2P(t \geq |computed t|)$
+
+
+
+The similarities between the two are that they both use the t statistic with a df = n-1 where n is the size of the sample, for the t-test it is the sample size but for the paired t-test it is the size of the differences. The test statistic is computed in a similar way, with the difference being that the one sample t-test uses the sample mean, while the paired t-test uses the mean of the differences. The rejection region calculations and observations are also the same, along with the method used to compute the alpha value, the difference being that for the paired t-test the sample of differences is used. The main differences are that the original paired t-test samples are dependent with the differences being independent. Also the calculation for computing the test statistic and rejection region are done similarly, with the paired t-test using the sample of differences while the one-sided t-test uses the sample itself.
+
+
+## Part 2
+
+$H_0: \bar{d} - D_0 = 0$
+
+$H_a: \bar{d} - D_0 \neq 0$
+
+Paired t-test
+
+$t = (\bar{d} - D_0)/(s_d/\sqrt{n})$
+
+Read the data in, test both samples for normality, then get the differences and test that for normality. Do the paired t-test, and then check using the built in t.test function, first with the differences and then with the original samples.
+```{r Part 2}
+q2Data <- read.csv("http://math.wsu.edu/faculty/xchen/stat412/data/Data1_HW4.txt", sep = '\t')
+
+sd(q2Data$withouStimulus)
+sd(q2Data$withStimulus)
+qqnorm(q2Data$withouStimulus, x = 'Without Stimulus')
+qqline(q2Data$withouStimulus, col = 2, lwd = 2)
+qqnorm(q2Data$withStimulus, x = 'With Stimulus')
+qqline(q2Data$withStimulus, col = 2, lwd = 2)
+
+qqplot(x = q2Data$withouStimulus, 
+       y = q2Data$withStimulus, 
+       xlab ='With Stimulus', 
+       ylab = 'Without stimulus')
+qqline(q2Data, col = 2, lwd = 2)
+ks.test(x = q2Data$withouStimulus, y = q2Data$withStimulus)
+#Data is not normal and dependent, thus we must use the paired t-test
+
+q2Data$differences <- q2Data$withStimulus - q2Data$withouStimulus
+q2Data$differences
+
+q2muD <- mean(q2Data$differences)
+q2sD <- sd(q2Data$differences)
+q2Len <- length(q2Data$withouStimulus)
+
+qqnorm(q2Data$differences, x = 'differences')
+qqline(q2Data$differences, lwd = 2, col = 2)
+test = mean(q2Data$withStimulus - q2Data$withouStimulus)
+ks.test(q2Data$differences, 'pnorm', mean(q2Data$differences), sd(q2Data$differences))
+#Data is approximately normal.
+
+q2TS <- (q2muD - 0)/(q2sD/sqrt(q2Len))
+q2TS
+q2T <- qt(0.975, df = q2Len -1)
+q2T
+qTPval <- 2*pt(q2TS, df = q2Len - 1, lower.tail = FALSE)
+qTPval
+
+t.test(q2Data$differences, alternative = 'two.sided', mu = 0)
+
+t.test(x = q2Data$withStimulus, y = q2Data$withouStimulus, alternative = 'two.sided', mu = 0, paired = TRUE, var.equal = FALSE, conf.level = 0.95)
+
+```
+The p-value is 0.0002747 and test statistic is 4.815. This is greater than 2.1447, the t value at confidence level = 0.95. Also the p-value is much less that 0.05. Thus we reject the null hypothesis and say that there is a difference in gene activity when using a stimulus than from not using a stimulus.
+
+
+### Part 3
+
+$H_0: \bar{d} - D_0 \leq 0$
+
+$H_a: \bar{d} - D_0 > 0$
+
+Paired t-test
+
+$t = (\bar{d} - D_0)/(s_d/\sqrt{n})$
+
+Read in the file, then check both samples for normality. Get the difference between the samples and check it for normality. Then do the paired t-test manually and then check at the end using the t.test function.
+```{r Part 3}
+q3Data <- read.csv('http://math.wsu.edu/faculty/xchen/stat412/data/Data2_HW4.txt', sep = '\t')
+
+q3WSSD <- sd(q3Data$withouStimulus)
+q3WithoutSD <- sd(q3Data$withStimulus)
+qqnorm(q3Data$withouStimulus, x = 'Without Stimulus')
+qqline(q3Data$withouStimulus, col = 2, lwd = 2)
+qqnorm(q3Data$withStimulus, x = 'With Stimulus')
+qqline(q3Data$withStimulus, col = 2, lwd = 2)
+
+qqplot(x = q3Data$withouStimulus, 
+       y = q3Data$withStimulus, 
+       xlab ='With Stimulus', 
+       ylab = 'Without stimulus')
+qqline(q3Data, col = 2, lwd = 2)
+ks.test(x = q3Data$withouStimulus, y = q3Data$withStimulus)
+#Data is not normal and dependent
+
+q3Data$differences <- q3Data$withStimulus - q3Data$withouStimulus
+q3Data$differences
+q3muD = mean(q3Data$differences)
+q3sD = sd(q3Data$differences)
+q3Len <- length(q2Data$withouStimulus)
+
+qqnorm(q3Data$differences, x = 'differences')
+qqline(q3Data$differences, lwd = 2, col = 2)
+test = mean(q3Data$withStimulus - q2Data$withouStimulus)
+ks.test(q3Data$differences, 'pnorm', mean(q3Data$differences), sd(q3Data$differences))
+#Data is approximately normal
+
+q3TS <- (q3muD - 0)/(q3sD/sqrt(q3Len))
+q3TS
+q3T <- qt(0.95, df = q3Len - 1)
+q3T
+qTP3val <- pt(q3TS, df = q3Len - 1, lower.tail = FALSE)
+qTP3val
+
+t.test(q3Data$differences, alternative = 'greater', mu = 0)
+
+t.test(x = q3Data$withStimulus, y = q3Data$withouStimulus, alternative = 'greater', mu = 0, paired = TRUE, var.equal = FALSE, conf.level = 0.95)
+```
+The test statistic is 3.2288 and the p-value is 0.003032. The test statistics is greater than the t-value at 0.05, 1.761 and the p-value is much less than 0.05. Thus we reject the null hypothesis; the gene activity when given a stimulus is greater than the gene activity without a stimulus.
+
+
+## Part 4
+
+$H_0: \mu_1 - \mu_2 = 0$
+
+$H_a: \mu_1 - \mu_2 \neq 0$
+
+Read the data and check both samples for normality. Then use the var.test function to ensure that the variances are different. Afterwards do the two-sample t-test and check with the t.test function.
+```{r Part 4}
+q4Data <- read.csv('http://math.wsu.edu/faculty/xchen/stat412/data/Data3_HW4.txt', sep = '\t')
+
+q4S1Mean <- mean(q4Data$sample1)
+q4S1SD <- sd(q4Data$sample1)
+q4S1Len <- length(q4Data$sample1)
+
+q4S2Mean <- mean(q4Data$sample2)
+q4S2SD <- sd(q4Data$sample2)
+q4S2Len <- length(q4Data$sample2)
+
+qqnorm(q4Data$sample1, x = 'Sample 1')
+qqline(q4Data$sample1, lwd = 2, col = 2)
+ks.test(q4Data$sample1, 'pnorm', q4S1Mean, q4S1SD)
+#Data is approximately normal
+
+qqnorm(q4Data$sample2, x = 'Sample 2')
+qqline(q4Data$sample2, lwd = 2, col = 2)
+ks.test(q4Data$sample2, 'pnorm', q4S2Mean, q4S2SD)
+#Data is approximately normal
+
+var.test(q4Data$sample1, q4Data$sample2)
+
+bottom <- (q4S1SD^2/q4S1Len) + (q4S2SD^2/q4S2Len)
+q4TS <- abs(((q4S1Mean - q4S2Mean) - 0)/(sqrt(bottom)))
+q4TS
+
+c <- ((q4S1SD^2)/q4S1Len)/bottom
+dfBottom <- (1 - c)^2*(q4S1Len - 1) + c^2*(q4S2Len - 1)
+q4df <- ((q4S1Len - 1)*(q4S2Len - 1))/dfBottom
+q4df
+
+q4T <- qt(0.975, df = q4df)
+q4T
+qTP4val <- 2*pt(q4TS, df = q4df, lower.tail = TRUE)
+qTP4val
+
+t.test(q4Data$sample1, q4Data$sample2, var.equal = FALSE, paired = FALSE)
+
+```
+The test statistic is 5.3951 and the p-value is $1.484e-05$. Due to the nature of the t.test function the value of the test statistic is listed as negative since the absolute value is not taken, though that is accounted for. The value itself is correct and the sign is correct after taking the absolute value as stated in the definition of a two-sample t-test. This test statistic is higher than 2.062, which is the t-value at $\alpha = 0.05$ for a two-sided test. The p-value is also much less than 0.05. Thus we reject the null hypothesis; there is a difference in means between the two samples.

@@ -1,0 +1,86 @@
+---
+title: "HW#9"
+author: "Srikar Murali (#11593114)"
+date: "November 16, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part 1
+
+#### a.
+
+The full model has four covariates plus the intercept, so in total it has five parameters. However, the y-intercept is not always considered a parameter, so it could be four
+depending on the context. The intuition in the $H_0: \beta_1 = \beta_2 = \beta_3 = \beta_4 = 0$ is to test whether or not the each of the respective covariates has any predictive power. It is trying to determine whether these covariates have any effect on the response variable y. If the slopes are 0, then including these covariates in the regression model does not improve its accuracy or predictive power. Thus, they do not need to be included in the model, and the model becames $y = \beta_0 + \epsilon$.
+
+#### b.
+
+The reduced model is $y = \beta_0 + \epsilon$. This model only has one parameter which is the y-intercept, $\beta_0$. The full model has four more parameters than the reduced model. The difference between these models is not the number of parameters the full model has, rather it is the number of parameters the full model has minus one for the y-intercept which both models share. However if you do not count the y-intercept as a parameter, then the difference between the models is the number of parameters.
+
+
+#### c.
+
+The reduced model is $y = \beta_3*x_3 + \beta_4*x_4 + \epsilon$. The reduced model has three parameters, two covariates plus the y-intercept. The full model has two more parameters than the reduced model. The degrees of freedom are $df_1 = 2$ and $df_2 = n - 2 - 1 = n - 3$ where n is the sample size.
+
+#### d.
+
+The degrees of freedom for testing the $H_0: \beta_1 = 0$ are $df_1 = 1$ and $df_2 = n-1-1 = n-2$, where n is the sample size. The relationship between the $t$ and $F$ statistic is that the $F$ statistic is $t^2$, the value of the t-test statistic squared.
+
+## Part 2
+
+model: $y = \beta_0 + \beta_1*x_1 + \beta_2*x_2 + \beta_3*x_3 + \epsilon$
+
+#### a.
+
+$H_0: \beta_1 = \beta_2 = \beta_3 = 0$
+
+$H_a:$ One of the slopes is not 0
+
+The best test for this null hypothesis is the F-test.
+
+```{r p2a}
+library(broom)
+
+sat = read.table("http://math.wsu.edu/faculty/xchen/stat412/data/CH06PR15.txt",
+                 header = FALSE)
+colnames(sat) = c("satisfaction", "age", "severity", "anxiety")
+regML = lm(satisfaction ~ age + severity + anxiety, sat)
+summary(regML)
+glance(regML)$statistic
+glance(regML)$p.value
+
+
+
+```
+
+The value of the F-statistic is 30.05, and the p-value is $1.541973e-10$ which is far less that 0.05. Thus, we reject the null hypothesis, at least one of the covariates does not have a slope of 0. Based on the output it is most likely age. Age has predictive power even when severity and anxiety are included in the model.
+
+
+#### b.
+
+$H_0: \beta_1 = 0$
+
+$H_a: \beta_1$  is not 0
+
+Based on the above output, we can see that the t value for testing the null hypothesis if $\beta_1 = 0$ is -5.315. The p-value is $3.81e-06$. Thus, we can reject the null hypothesis, $\beta_1$ does not have a slope of 0. However to check this we can fit a full and reduced model.
+
+```{r p2b}
+regML2 = lm(satisfaction ~ age + severity + anxiety, sat)
+RSSF1 = sum(regML2$residuals^2)
+regMLR = lm(satisfaction ~ severity + anxiety, sat)
+RSSR1 = sum(regMLR$residuals^2)
+FFR = ((RSSR1 - RSSF1)/1)/(RSSF1/42)
+FFR
+
+
+```
+
+The F test statistc here is 28.24706. This is the t-test statistic squared. It is much larger than the critical value of F. Thus it confirms that age, $\beta_1$ does not have a slope of 0. It does have predictive power.
+
+
+#### c.
+
+The interpretation of the hypothesis test is that: age has some ability to predict satisfaction level even after the effects of severity and anxiety on satisfaction level have been taken into account. This is true since the hypothesis test is looking at the predictive power of this single covariate by itself in the model, and thus is taking account the effects of the other covariates. Though, age might not have any additional or unique predictive power when other covariates are added. The hypothesis test on the value of $\beta_1$ indicates that age does have an effect on the response, and no matter the effects of severity and anxiety, it will continue to have predictive power. Though there is still the possibility that age might not have additional predictive power when other covariates are added.

@@ -1,0 +1,121 @@
+---
+title: "HW#6"
+author: "Srikar Murali (#11593114)"
+date: "October 26, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 10.18
+
+### a.
+
+Do the two-proportion z-test and check with the built in R function.
+```{r 10.18a.}
+
+pWarranty <- 91/250
+pNoWarranty <- 53/250
+pWarranty
+pNoWarranty
+
+#condition check:
+first = 250*pWarranty
+second = 250*(1-pWarranty)
+third = 250*pNoWarranty 
+fourth = 250*(1-pNoWarranty)
+first
+second
+third
+fourth
+```
+
+$n\hat{p}$ and $n(1-\hat{p})$ for each proportion are all greater than 5 and no cell has a count less than 1, thus a two-proportion z-test can be used.
+
+
+```{r 10.18a2.}
+
+propSd1 <- sqrt(pWarranty*(1-pWarranty)/250 + pNoWarranty*(1-pNoWarranty)/250)
+lower1 <- (pWarranty - pNoWarranty) - qnorm(0.975) * propSd1
+upper1 <- (pWarranty - pNoWarranty) + qnorm(0.975) * propSd1
+lower1
+upper1
+prop.test(c(91, 53), c(250,250),conf.level = 0.95, correct = FALSE)
+
+```
+
+The confidence interval is (0.0737, 0.23025).
+
+### b.
+
+$H_0: \pi_1 - \pi_2 \leq 0$
+
+$H_a: \pi_1 - \pi_2 > 0$
+
+$\alpha = 0.01$ 
+
+Conditions were checked in the previous part. All conditions are satisfied.
+```{r 10.18b.}
+
+zTS1 <- ((pWarranty - pNoWarranty) - 0)/propSd1
+zTS1
+zVal <- qnorm(0.99)
+```
+
+We reject the null hypothesis at alpha = 0.01. Offering the lawn mower with the warranty seems to yield a higher proportion of sales.
+
+
+
+### c.
+
+Based on the confidence interval, offering the lawn mower with the warrant results in a 0.0737 to 0.23025 proportion increase in customer sales. Also the z-test at the 99% confidence level yields that based on the sample the proportion of customers who buy the lawn mower with the warranty is greater than the proportion of customers who buy the lawnmower without the warranty. Thus given these two results, I would offer the warranty as a higher proportion of customers seem to buy the lawn mower with it.
+
+
+
+## 10.90
+
+
+## a.
+
+$H_0$: Academic tolerance and political ideology are independent.
+
+$H_a$: Academic tolerance and political ideology are not independent.
+
+Create a dataframe of the given table in the textbook and then run a chi-square test for independence on it using the built in R-function.
+```{r 10.90a.}
+
+d <- matrix(c(36,44,84,95,64,42),ncol=3,byrow=TRUE)
+colnames(d) <- c('Low', 'Medium', 'High')
+rownames(d) <- c('Left', 'Right')
+d <- data.frame(d)
+d
+chisq.test(d)
+
+```
+
+The chi-square value is 40.946, and the p-value is very low. Thus due to the high chi-square value, and the low p-value we reject he null hypothesis. There seems to be some association between academic tolerance and political ideology, though we cannot say how strong or what kind of relationship it is.
+
+
+Barplot of the Academic Tolerance vs Political Ideology
+```{r 10.90b.}
+
+barplot(t(as.matrix(d)), beside = TRUE,
+        xlab = 'Political Ideology',
+        ylab = 'Academic Tolerance',
+        main = 'Academic Tolerance vs Political Ideology',
+        ylim = c(0,100),
+        legend = colnames(d),
+        args.legend = list(x ='topright', bty='n', inset=c(-0.05,0.1)),
+        col = c('red', 'blue', 'orange'))
+
+
+```
+
+
+### c.
+
+Based on the graph, it appears that most people with left wing political ideology seem to have a high academic tolerance, while most people with a right wing political ideology seem to have a low to medium academic tolerance. In fact, the distribution for left wing political ideology seems to almost be the direct opposite of the right wing ideology. As most left wing people have a high academic tolerance with few having medium to low tolerances while the majority of right wing people have a low academic tolerance.
+
+

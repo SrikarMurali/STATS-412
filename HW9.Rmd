@@ -1,0 +1,85 @@
+---
+title: "HW#8"
+author: "Srikar Murali (#11593114)"
+date: "November 9, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part 1
+
+$y = \beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + \epsilon$
+
+a. $\epsilon$ is the random error component associated with the model. It measures how far above or below the true regression line the actual observation of $y$ lies. It has a mean 0 and a variance $\sigma_{\epsilon}^2$. It is the irreplacable error in every model due to variables and factors that either are not observed in the experiment or are uncontrollable. It demonstrates that the regression model will always have some error and will never be completely accurate. It is random and irreplacable since if one knew this error, then one could estimate the $y$ value correctly each time.
+
+b. The formula is $E(y) = \beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_3$.
+
+c. $\beta_1$ is the change in $y$ for a one unit change in $x$ while keeping each of the other regressors fixed.
+
+d. The multiple regression model is the simple linear model. The only difference is more variables are pulled out from the error, $\epsilon$. In the simple linear model, one predictor is used to predict the response variable. However, in almost every setting there is usually more than one predictor that impacts the response variable. In simple linear regression, these extra predictors are part of the random error, $\epsilon$ as they are not used in the simple linear model. Thus they add to the error as less information is accessed. In multiple regression more predictors are used to predict a response. These predictors are variables that were once considered part of the random error, but are now being explicitly used and thus are no longer part of it. Overall, the multiple regression model is the same as the linear model, just with more variables being used explictly rather than them contributing to the random error.
+
+Example:
+
+$y = \beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + \epsilon$
+
+Let $\delta$ equal: $\delta = \beta_2x_2 + \beta_3x_3 + \epsilon$ 
+
+Where $\delta$ is the random error component of the multiple regression model.
+
+Then $y = \beta_0 + \beta_1x_1 + \delta$
+
+Which is the simple linear regression model.
+
+## Part 2
+
+
+```{r ip,include=FALSE,warning=FALSE,message=FALSE}
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+library(MASS)
+
+```
+a.
+
+The pairs plot shows the satisfaction is negatively correlated with each of the other covariates.
+```{r p2a}
+
+data <- read.table('http://math.wsu.edu/faculty/xchen/stat412/data/CH06PR15.txt')
+colnames(data) <- c("satisfaction", "age", "severity", "anxiety")
+pairs(data)
+```
+
+b.
+
+```{r p2b}
+fit1 <- lm(anxiety ~ age, data=data)
+summary(fit1)
+```
+
+The regression line is $y = 1.552860 + 0.019121*age$.
+
+c.
+
+```{r p2c}
+fit2 <- lm(satisfaction ~ age + severity + anxiety, data=data)
+summary(fit2)
+
+```
+
+The regression line is $y = 158.4913 - 1.1416*age - 0.4420*severity - 13.4702*anxiety$.
+
+
+
+```{r best}
+gfit <- lm(satisfaction ~., data=data)
+bestfit <- stepAIC(gfit)
+summary(bestfit)
+
+```
+
+
+Using stepAIC from the MASS package the best regression model which has the best balance between the number of covariates used and the $R^2$ value is $y = 145.9412 - 1.2005*age - 16.7421*anxiety$

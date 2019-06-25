@@ -1,0 +1,178 @@
+---
+title: "HW2"
+author: "Srikar Murali"
+
+date: "September 7, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+###studentID: 11593114
+
+
+##3.7
+This code takes the data, cleans it, then graphs the standard therapy and new therapy as histograms.
+Finally it gives the 5-number summary for both data sets
+```{r question 3.7}
+library(lattice)
+library(stringr)
+library(ggplot2)
+og <- read.csv('http://math.wsu.edu/faculty/xchen/stat412/data/stat412ASCII-tab/CH03/ex3-7.TXT')
+
+clean <- str_split_fixed(og$X.StandardTherapy...NewTherapy., '\t', 2)
+standardTherapy <- as.numeric(clean[,1])
+histogram(standardTherapy,main='Standard Therapy Survival Times', xlab= 'Survival Times', ylab='Percent Total of Each Survival Time')
+newTherapy <- as.numeric(clean[,2])
+histogram(newTherapy, main='New Therapy Survival Times', xlab= 'Survival Times', ylab='Percent Total of Each Survival Time')
+summary(standardTherapy)
+summary(newTherapy)
+```
+b. The newer therapy seems to have a greater frequency of larger survival times compared to the standard therapy. 
+As well as having a higher mean and median survival time, as well as a higher max survival time than the standard therapy.
+
+
+##3.16
+Code reads data, and then gets mean and median. Created a mode function to calculate the mode of the distribution.
+Compared mean, median and mode before and after changes were made to the dataset.
+```{r question 3.16}
+
+quest316 <- read.csv('http://math.wsu.edu/faculty/xchen/stat412/data/stat412ASCII-tab/CH03/ex3-15.TXT')
+summary(quest316$X.Data.)
+mean(quest316$X.Data.)
+median(quest316$X.Data.)
+Mode <- function(x) {  
+  
+  ux <- unique(x)  # take out the unique elements of x  
+  
+  freqCnt = tabulate(match(x, ux))  # find out how many times a number occurs  
+  
+  maxId = which(freqCnt == max(freqCnt))  # find out indices for modes  
+  
+  ux[maxId]  # store modes
+  
+}
+Mode(quest316$X.Data.)
+quest316$X.Data.[quest316$X.Data. == 110] <- 345
+quest316$X.Data.[quest316$X.Data. == 115] <- 467
+
+summary(quest316$X.Data.)  
+mean(quest316$X.Data.)
+median(quest316$X.Data.)
+Mode(quest316$X.Data.)
+```
+The mean changed as outliers were added, but the mode and median stayed the same since they are robust measures of center.
+
+
+
+
+##3.23
+a.Read the data, cleaned it, and then calculated the mean, median and mode. The mode was calculated using the previous
+mode function.
+```{r question 3.23}
+quest323 <- read.csv('http://math.wsu.edu/faculty/xchen/stat412/data/stat412ASCII-tab/CH03/ex3-23.TXT')
+clean323 <- str_split_fixed(quest323$X.Failure.time...Censored., '\t', 2)
+
+summary(as.numeric(clean323[,1]))
+mean(as.numeric(clean323[,1]))
+median(as.numeric(clean323[,1]))
+Mode(as.numeric(clean323[,1]))
+```
+b. It impacts the measures of center, by lowering the mean, since the days run could have been higher than 300.
+It also skews the median, since the median could have been more towards the right if the engineers had continued the study.
+Lastly it skews the mode, since the mode might not be 300 days, since that is just the cutoff date, and not the actual time the motors ran.
+
+##3.35
+a.
+Can:
+
+  Median: About 1.6 dollars
+  
+  Lower Quartile: 1.5 dollars
+  
+  Upper Quartile: About 2.4 dollars
+  
+
+Dry:
+
+  Median: About 0.55 dollars
+  
+  Lower Quartile: 0.5 dollars
+  
+  Upper Quartile: About 0.7 dollars
+  
+  
+b.
+The median and lower quartile for both types of dog food are pretty close. Both types have some outliers.
+
+The differences are that the CAN dog food has a much greater interquartile range, at around 0.9 dollars while the DRY type has an IQR of 0.2 dollars. The CAN type has a larger median, lower quartile, and upper quartile cost.
+The CAN type also has more outliers, and a larger overall range at around 2 dollars, compared to the DRY's 0.7 dollars. CAN has an overall higher cost when compared to DRY dog food.
+
+##3.41
+a.
+The scatter plot is useful for observing the differences in M2 and M3 and would help showcase the relation, since both distributions would both be similar with the only difference being that each value of M3 will be greater than each value of M2 by a certain amount, which can be observed and calculated using the scatterplot
+
+b. Code reads data and cleans it. Then melts the M2 and M3 values together into a data frame. Lastly using ggplot
+the data set was plotted to observe a relation.
+```{r question 3.41}
+library(reshape2)
+quest341 <- read.csv('http://math.wsu.edu/faculty/xchen/stat412/data/stat412ASCII-tab/CH03/ex3-41.TXT')
+clean341 <- str_split_fixed(quest341$X.Months...M2...M3., '\t',3)
+data341 <- melt(clean341[, 2:3])
+ggplot(data=data341, 
+       aes(x=Var1, y=value)) +
+       theme_bw() +
+       labs(x='Months', y='Money Supply (Trillions of Dollars)', title='Money Growth vs Target', color = 'Money Measure') +
+       scale_color_manual(labels = c("M2", "M3"), values = c("blue", "red")) +
+       theme(axis.text.x=element_text(size=14), axis.title.x=element_text(size=16),
+              plot.title=element_text(size=20, face="bold", color="darkgreen")) +
+         geom_point(aes(color=factor(Var2)))
+
+```
+
+
+There is a relation, it appears that each value of M3 is greater than that of M2 by around 0.55 - 0.65.
+
+##4.19a
+a.A and B are dependent because if A happens, B must happen: P(B|A) = 1 != P(B). So event A does affect the probability of event B.
+
+
+
+##4.65d
+
+$p(500 - k < y < 500 + k)$
+
+ $z_1$ = $(500 - k - 500)/100$
+ 
+ $z_2$ = $(500 + k - 500)/100$
+ 
+ $= p(-0.01k < y < 0.01k) = 0.6$
+ 
+ $= p(-0.845 < y < 0.845) = 0.6$
+ 
+ $0.01k = 0.845$
+ 
+ $k = 84.5$
+ 
+ 
+##4.94a
+Code reads the data, and then creates a quantile-quantile plot to test for normalcy. Afterwards the KS test is used to identify the p-value, and determine whether the distribution is normal or not. A normal line is also drawn on the qq plot to help determine normality. Additional tests are also conducted on the data.
+```{r question 4.94}
+set.seed(123)
+tough = read.table("http://math.wsu.edu/faculty/xchen/stat412/data/stat412ASCII-tab/CH04/ex4-94.TXT", header=TRUE, sep="\t")
+tough1 = tough[,1]
+qqnorm(tough1,
+       plot.it = TRUE, 
+       xlab='Concrete Specimen',
+       ylab='Fracture Toughness',
+       main='Toughness bases on Specimen')
+qqline(tough1, col = 2, lwd=2)
+sd(tough1)
+ks.test(tough1, "pnorm",mean(tough1),sd(tough1))
+
+
+```
+
+The quantile plot and line demonstrates that the data is normally distributed. In addition the KS test yields a p-value
+of 0.9457 which is very high. This means that the data is most likely normally distributed.

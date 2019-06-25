@@ -1,0 +1,87 @@
+---
+title: "HW#7"
+author: "Srikar Murali (#11593114)"
+date: "November 2, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Part 1
+
+a. $\epsilon$ is the random error term of the linear relationship between x and y. It takes into account the other factors which the model did not take into account and has mean 0 and variance $\sigma_{\epsilon}^2$.
+
+b. $E(y) = \beta_0 + \beta_1x$ is the formula.
+
+c. For a single unit change in x, the value of $E(y)$ changes by the slope $\beta_1$. For a single unit change in x, y changes by the slope $\beta_1$. For calculating y a single unit change in x changes the value of y by $\beta_1$. The only difference is that there is an added $\epsilon$ variable which accounts for the random error. In the $E(y)$ case, the value of $\epsilon$ is expected to be 0, however this might not hold true when estimating for a single value of y. It is for this reason the prediction interval is wider than the confidence interval.
+
+d. The values of $y_i$ could be equal to the values obtained by plugging in $x_i$ into the the linear model. However, this is highly unlikely. For this to happen the model would have to perfectly estimate the distribution which is almost impossible. The best case to occur is that when the values of $x_i$ are plugged into the linear model, the estimated values, $\hat{y_i}$ are close to the observed values of $y_i$. To approximate how how well the model fits the data, the sum of squares for residuals can be obtained by taking the sum of the squared difference for the observed and expected for all data points.
+
+e. The uncertainty $\epsilon$ for each $y_i$ term is the random error associated with that term. The random error is normal and independent with a mean of 0 and a variance of $\sigma_{\epsilon}^2$. This means that for each $y_i$ term estimated by the regression model, the values of $y_i$ will vary by a certain amount depending on the random error term. $\epsilon$ is normally distributed, so that means the values of y approximated by the model can be anywhere on the normal distribution at that $y_i$ value. The value of $y_i$ can be seen in the $R^2$ value. In order to decrease the error more positively correlated covariates for y must be found. In addition $Var(Y|x) = Var(\beta_0 + \beta_1x + \epsilon | x) = Var(\epsilon)$. Thus y in some cases will have the same variance as the distribution of the random error. This is due to the fact that in this case x is a known quantity instead of a random variable, thus y has the same variance as the random error. For an E(y) estimate, the expected value of $\epsilon$ is 0. 
+
+## Part 2
+
+
+a. Estimated slope is 0.254192 and the estimated intercept is 0.063683. The meaning of the y-intercept in this case is the total number of minutes spent by the service person for 0 copiers serviced. This value does not make much sense in context, as servicing 0 copiers should not take any time,though in tis case it takes 0.254192 minutes. Thus, the y-intercept should not be taken too seriously when doing making inferences from this model.
+
+Regression line: $y = 0.25142 + 0.06368x$ 
+
+Fitted Model: $y = 0.25142 + 0.06368x + \epsilon$
+
+
+$H_0: \beta_1 = 0$
+
+$H_a: \beta_1 \neq 0$
+
+$\alpha = 0.05$
+
+
+```{r p2b}
+data = read.table("http://math.wsu.edu/faculty/xchen/stat412/data/DataHW7.txt",
+                header = FALSE)
+
+fit <- lm(V2 ~ V1, data = data)
+summary(fit)
+
+xbar <- mean(data$V1)
+xbar
+ybar <- mean(data$V2)
+ybar
+S_xx <- sum((data$V1 - xbar)^2)
+S_xx
+n <- length(data$V1)
+n
+esterrorVar = sum(fit$residuals^2)/(length(fit$residuals) - 2)
+esterrorVar
+df <- fit$df.residual
+df
+tval <- qt(0.025, df = df, lower.tail = FALSE)
+beta1 <- sum((((data$V1 - xbar) * (data$V2 - ybar))/S_xx))
+beta1
+tCrit <- (beta1 - 0)/(esterrorVar/sqrt(S_xx))
+tCrit
+
+
+```
+
+The value of the observed t is much larger than the t value at 0.95. Thus we reject the null hypothesis, the value of the slope is not 0.
+
+
+```{r p2c}
+
+plot(fit, which = 1)
+
+
+
+```
+
+The residuals do not completely are not completely balanced, though they seem to be relatively alright as indicated by the red line which has some curvature.
+
+## Part 3
+
+a. The difference between the two regression models will not be that severe. This point is an outlier in the x direction, but not in the y direction since its value is close to the mean, $\bar{y}$. Thus the point has high leverage but not high influence. This means that it is an outlier in the x direction but not in the y direction, and thus does not influence the regression line that much. The regression line will most likely still pass through the point, even though the point is far away from where most of the other points lie. At most the point may shift the line slightly upward or downward, though in this case the y value is close to the mean of the y values. Thus, it will barely change the regression line as the point will either lie on the line or be close to it.
+
+b. The difference between the two models will most likely be very large. Since the point is an outlier in both the x and y directions, and is not close to either the mean of x, $\bar{x}$ or the mean of y, $\bar{y}$, it will effect the regression models predictions. This point has high leverage and high influence. This means that due to the location of the point, the regression model will be severely skewed since a line fitted through this point will poorly fit all of the other points. Thus, this will cause the predictions to be very inaccurate since the linear model does not fit the majority of the data correctly. The predictions from these models will be very different from one another.
